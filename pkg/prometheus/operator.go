@@ -819,13 +819,16 @@ func (c *Operator) handleSecretDelete(obj interface{}) {
 }
 
 func (c *Operator) handleSecretUpdate(old, cur interface{}) {
+
+	level.Debug(c.logger).Log("msg", "update handler", "secret", cur.(*v1.Secret).GetName(), "old", old.(*v1.Secret).ResourceVersion, "cur", cur.(*v1.Secret).ResourceVersion)
+
 	if old.(*v1.Secret).ResourceVersion == cur.(*v1.Secret).ResourceVersion {
 		return
 	}
 
 	o, ok := c.getObject(cur)
 	if ok {
-		level.Debug(c.logger).Log("msg", "Secret updated")
+		level.Debug(c.logger).Log("msg", "Secret updated", "secret", o.GetName())
 		c.metrics.TriggerByCounter("Secret", "update").Inc()
 
 		c.enqueueForPrometheusNamespace(o.GetNamespace())
